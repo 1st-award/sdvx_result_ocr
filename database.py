@@ -3,8 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DBNAME = os.environ.get('DATABASE_NAME')
-DB_URL = f'sqlite:///./{DBNAME}'
+DB_URL = f'sqlite:///./sound_voltex.db'
 engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -18,7 +17,7 @@ def get_db():
 
 def get_song_title():
     db = SessionLocal()
-    SELECT_QUERY = "SELECT T_SONG.TITLE FROM T_SONG;"
+    SELECT_QUERY = "SELECT T_SONG.TITLE FROM T_SONG"
     result = db.execute(text(SELECT_QUERY)).all()
     title_list = []
     for title in result:
