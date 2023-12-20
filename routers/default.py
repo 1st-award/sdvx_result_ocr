@@ -1,12 +1,15 @@
 import os
 import uuid
-from fastapi.responses import FileResponse
 import crud.default as crud
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
 from database import get_db
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from models.song import RecordItem
+from sqlalchemy.orm import Session
 # Create routing method
 router = APIRouter()
+load_dotenv()
 UPLOAD_DIR_PATH = os.environ.get("UPLOAD_DIR_PATH")
 
 
@@ -18,7 +21,7 @@ def read_root():
 def read_song_information(title: str, db:Session = Depends(get_db)):
     try:
         result = crud.get_song_information(title, db)
-        print(result)
+        # print(result)
         return {"success": True, "data": result}
     except Exception as err:
          raise HTTPException(status_code=500, detail=str(err))
@@ -42,8 +45,20 @@ async def create_image_to_data(file: UploadFile = File(...)):
     with open(image_path, "wb") as reader:
         reader.write(image)
     image, predict = crud.image_predict(image_path)
-    if len(predict) < 3:
+    if len(predict) < 5:
             crud.remove_detect_image(image_name, image_type)
             raise HTTPException(status_code=400, detail="Not enough detect data")
     result = await crud.create_image_to_data(image, predict, image_name)
     return {"success": True, "data": result}
+
+@router.post("/record")
+async def create_record(data: RecordItem, db: Session=Depends(get_db)):
+     crud.create_record(data, db)
+     return {"success": True}
+
+@router.get("/record/{user_name}")
+async def get_record(user_name: str, db: Session=Depends(get_db)):
+     result = crud.get_record(user_name, db)
+     if len(result) == 0:
+          raise HTTPException(status_code=404, detail="No data")
+     return {"success": True, "data": result}

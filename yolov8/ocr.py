@@ -6,9 +6,10 @@ import os
 import re
 import requests
 import uuid
+from dotenv import load_dotenv
 from io import BytesIO
 from typing import Dict, List, Optional
-
+load_dotenv()
 CLASS_JOB: Dict[str, bool] = {"UC": False, "difficulty": False, "result": False, "result_perfect": False, "score": False, "score_detail": False, "score_perfect": False, "score_rate": False, "title": False}
 CLASS_LIST: List[str] = ["UC", "difficulty", "result", "result_perfect", "score", "score_detail", "score_perfect", "score_rate", "title"]
 DETAIL_LIST: List[str] = ["ERROR", "NEAR", "CRITICAL", "S_CRITICAL"]
@@ -44,7 +45,7 @@ def sequence_matcher(target: str, template: List[str], target_conf: Optional[flo
     # print(best_ratio, best_template)
     return best_template
 
-def post_process(current_job, ocr_value):
+def post_process(current_job, ocr_value, dup_switch):
     if current_job == "title":
             ocr_value = sequence_matcher(ocr_value, SONG_LIST)
     elif current_job in ["score", "score_perfect"]:
@@ -66,6 +67,10 @@ def post_process(current_job, ocr_value):
         for idx in range(len(ocr_value)):
             if ocr_value[idx] in ["O", "o"]:
                 ocr_value[idx] = "0"
+            if ocr_value[idx] in ["I", "i"]:
+                ocr_value[idx] = "1"
+        if dup_switch is True:
+            ocr_value.append("0")
     return ocr_value
 
 def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
@@ -106,7 +111,7 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                     # print(current_job, ocr_value)
                     CLASS_JOB[current_job] = False
                     CLASS_JOB[title] = True
-                    ocr_value = post_process(current_job, ocr_value)
+                    ocr_value = post_process(current_job, ocr_value, dup_switch)
                     ocr_result[current_job] = ocr_value
                     current_job = title
                     
@@ -126,13 +131,12 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                 ocr_value += sequence_matcher(value, RESULT_LIST)
             elif current_job == "score_detail":
                 # ERROR, NEAR, CRITICAL, S-CRITICAL
-                result = sequence_matcher(value, DETAIL_LIST, 0.65)
+                result = sequence_matcher(value, DETAIL_LIST, 0.45)
                 if result is None:
                     ocr_value.append(value)
                     dup_switch = False
                 elif result is not None and dup_switch is True:
                     ocr_value.append("0")
-                    dup_switch = False
                 else:
                     dup_switch = True
             elif current_job in ["score", "score_perfect"]:
@@ -157,7 +161,7 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
             elif current_job == "difficulty":
                 # difficulty
                 ocr_value += value + " "
-        ocr_value = post_process(current_job, ocr_value)
+        ocr_value = post_process(current_job, ocr_value, dup_switch)
         ocr_result[current_job] = ocr_value
         ocr_result_list.append(ocr_result)
         # 변수 초기화

@@ -1,8 +1,9 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 from typing import Tuple
+from dotenv import load_dotenv
 from yolov8.predict import Box
-
+load_dotenv()
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 FONT_DIR_PATH = os.environ.get("FONT_DIR_PATH")

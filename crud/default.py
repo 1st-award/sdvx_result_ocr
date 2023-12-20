@@ -1,14 +1,15 @@
 import hashlib
 import os
+import yolov8.image as image
+from dotenv import load_dotenv
 from io import BytesIO
-from models.song import Song
+from models.song import Song, Record, RecordItem
 from PIL import Image
 from sqlalchemy.orm import Session
 from typing import Tuple
-import yolov8.image as image
 from yolov8.ocr import req_OCR_data
 from yolov8.predict import predict, Predict
-
+load_dotenv()
 DETECT_DIR_PATH = os.environ.get("DETECT_DIR_PATH")
 OCR_READY_DIR_PATH = os.environ.get("OCR_READY_DIR_PATH")
 THUMBNAIL_DIR_PATH = os.environ.get("THUMBNAIL_DIR_PATH")
@@ -53,3 +54,12 @@ async def create_image_to_data(img:Image, result: Predict, image_name: str):
 def remove_detect_image(image_name: str, image_format: str):
     os.remove(f'{UPLOAD_DIR_PATH}\\{image_name}.{image_format}')
     os.remove(f'{DETECT_DIR_PATH}\\{image_name}.{image_format}')
+
+def create_record(data: RecordItem, db: Session):
+    record = Record(**data.dict())
+    db.add(record)
+    db.commit()
+
+def get_record(user_name: str, db: Session):
+    result = db.query(Record).filter(Record.USERNAME == user_name).order_by(Record.SCORE.desc(), Record.TITLE.desc(), Record.DT.desc()).all()
+    return result
