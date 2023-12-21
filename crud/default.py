@@ -29,7 +29,7 @@ def get_song_information(title:str, db:Session) -> Song:
     # SELECT_QUERY = "SELECT T_SONG.TITLE FROM T_SONG;"
     return db.query(Song).filter(Song.TITLE == title).first()
 
-def get_song_thumbnail(title:str, difficulty:str) -> Tuple(str, str):
+def get_song_thumbnail(title:str, difficulty:str) -> Tuple[str, str]:
     """곡 제목과 난이도 통해 곡 썸네일을 저장위치를 찾는 함수
 
     Args:
