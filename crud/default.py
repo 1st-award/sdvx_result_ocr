@@ -32,6 +32,10 @@ def get_song_thumbnail(title:str, difficulty:str):
 def image_predict(img_path) -> Tuple[Image.Image, Predict]:
     # 이미지 열기
     img = Image.open(img_path)
+    # 이미지가 가로 > 세로면 오른쪽 90도로 꺽였다고 판단
+    width, height = img.size
+    if width > height:
+        img = img.rotate(270)
     # 이미지에서 필요한 정보 좌표 가져오기
     result = predict(YOLO_MODEL_PATH, img)
     return img, result
