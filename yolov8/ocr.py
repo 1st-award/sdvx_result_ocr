@@ -22,10 +22,15 @@ OCR_API_URL = os.environ.get("OCR_API_URL")
 OCR_TOKEN = os.environ.get("OCR_TOKEN")
 
 def sequence_matcher(target: str, template: List[str], target_conf: Optional[float]=None) -> str:
-    """
-    DB에 있는 노래 제목을 불러와 
-    OCR에서 추출한 제목과 가장 유사한 제목을 Return
-    https://shorturl.at/lvT17
+    """OCR 처리 후, 원본 단어와 가장 유사한 단어를 계산하는 함수 (https://shorturl.at/lvT17)
+
+    Args:
+        target (str): OCR 결과 단어
+        template (List[str]): 원본 단어 List
+        target_conf (Optional[float], optional): 목표 유사도. Defaults to None.
+
+    Returns:
+        str: OCR 결과와 가장 유사한 단어
     """
     input_bytes = bytes(target, 'utf-8')
     input_bytes_list = list(input_bytes)
@@ -45,7 +50,17 @@ def sequence_matcher(target: str, template: List[str], target_conf: Optional[flo
     # print(best_ratio, best_template)
     return best_template
 
-def post_process(current_job, ocr_value, dup_switch):
+def post_process(current_job: str, ocr_value: list|str, dup_switch: bool) -> list|str:
+    """OCR 결과 값 보정 함수
+
+     Args:
+        current_job (str): 현재 작업
+        ocr_value (list | str): 보정할 OCR 결과 값
+        dup_switch (bool): score_detail label 중복 입력 확인 변수
+
+    Returns:
+        list|str: 보정된 OCR 결과 값
+    """
     if current_job == "title":
             ocr_value = sequence_matcher(ocr_value, SONG_LIST)
     elif current_job in ["score", "score_perfect"]:
@@ -74,6 +89,15 @@ def post_process(current_job, ocr_value, dup_switch):
     return ocr_value
 
 def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
+    """OCR 요청 함수
+
+    Args:
+        image (BytesIO): OCR 이미지
+        image_name (str): OCR 이미지 이름 (uuid)
+
+    Returns:
+        List[dict]: OCR 결과 List
+    """
     # OCR 한글 요청하기
     url = OCR_API_URL
     header = {

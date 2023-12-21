@@ -2,6 +2,10 @@ from typing import Any, Dict, List, Tuple
 from ultralytics import YOLO
 
 class Box:
+    """
+    Yolov8 감지한 객체 Box Class
+    감지한 객체의 이름과 좌표를 저장
+    """
     def __init__(self) -> None:
         self._class_nm:str = ""
         self._pos:Tuple[float, float, float, float] = ()
@@ -33,6 +37,10 @@ class Box:
 
 
 class Predict:
+    """
+    Box class를 담는 Class
+    감지한 객체 이름과 Box class를 저장
+    """
     def __init__(self) -> None:
         self.objects:Dict[str: Box] = {}
 
@@ -58,6 +66,15 @@ class Predict:
 
 
 def predict(model_path: str, source: Any) -> List[Predict]:
+    """Yolov8 이미지 예측
+
+    Args:
+        model_path (str): Yolov8 model 저장 위치
+        source (Any): 이미지
+
+    Returns:
+        List[Predict]: 감지된 객체 리스트
+    """
     # Load a pretrained YOLOv8n model
     model = YOLO(model_path)
     predict = Predict()
