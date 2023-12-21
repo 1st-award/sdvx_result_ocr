@@ -89,6 +89,8 @@ def post_process(current_job: str, ocr_value: list|str, dup_switch: bool) -> lis
                 ocr_value[idx] = "-1"
         if dup_switch is True:
             ocr_value.append("-1")
+    elif current_job == "result":
+        ocr_value = sequence_matcher(ocr_value, RESULT_LIST)
     return ocr_value
 
 def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
