@@ -63,7 +63,7 @@ def post_process(current_job: str, ocr_value: list|str, dup_switch: bool) -> lis
     """
     if current_job == "title":
             ocr_value = sequence_matcher(ocr_value, SONG_LIST)
-    elif current_job in ["score", "score_perfect"]:
+    elif current_job == "score":
         # 숫자만 남게
         ocr_value = re.sub(r'[^0-9]', '', ocr_value)
         if list(ocr_value)[0] == "0":
@@ -73,19 +73,22 @@ def post_process(current_job: str, ocr_value: list|str, dup_switch: bool) -> lis
         # 문자만 남게
         ocr_value = re.sub(r'\d', '', ocr_value).strip()
         ocr_value = sequence_matcher(ocr_value, DIFFICULTY_LIST)
-    elif current_job == "score_rate":
+    elif current_job == "rate":
         ocr_value = ocr_value.split()
         ocr_value[-1] = re.sub(r'[^\d, ., %]', '', ocr_value[-1])
         ocr_value = ' '.join(ocr_value)
-    elif current_job == "score_detail":
+    elif current_job == "detail":
         # 문자 -> 숫자
         for idx in range(len(ocr_value)):
+            # print(ocr_value[idx])
             if ocr_value[idx] in ["O", "o"]:
                 ocr_value[idx] = "0"
-            if ocr_value[idx] in ["I", "i"]:
+            elif ocr_value[idx] in ["I", "i"]:
                 ocr_value[idx] = "1"
+            elif not ocr_value[idx].isdigit():
+                ocr_value[idx] = "-1"
         if dup_switch is True:
-            ocr_value.append("0")
+            ocr_value.append("-1")
     return ocr_value
 
 def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
@@ -139,7 +142,7 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                     ocr_result[current_job] = ocr_value
                     current_job = title
                     
-                if current_job == "score_detail":
+                if current_job == "detail":
                     # "score_detail"
                     # 리스트로 초기화
                     ocr_value = []
@@ -150,20 +153,20 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                 continue
             # 데이터 정제하기
             # print(current_job, ocr_value)
-            if current_job in ["result", "result_perfect", "UC"]:
+            if current_job == "result":
                 # SUCCESS, CRASH, PERFECT, ULTIMATE CHAIN
                 ocr_value += sequence_matcher(value, RESULT_LIST)
-            elif current_job == "score_detail":
+            elif current_job == "detail":
                 # ERROR, NEAR, CRITICAL, S-CRITICAL
                 result = sequence_matcher(value, DETAIL_LIST, 0.45)
                 if result is None:
                     ocr_value.append(value)
                     dup_switch = False
                 elif result is not None and dup_switch is True:
-                    ocr_value.append("0")
+                    ocr_value.append("-1")
                 else:
                     dup_switch = True
-            elif current_job in ["score", "score_perfect"]:
+            elif current_job == "score":
                 # 0 ~ 100000
                 result = sequence_matcher(value, RESULT_LIST, 0.45)
                 # print(f"currentjob: {result}")
@@ -171,7 +174,7 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                     ocr_value += value
                 else:
                     ocr_value += result
-            elif current_job == "score_rate":
+            elif current_job == "rate":
                 # EFFECTIVE RATE, EXCESSIVE RATE
                 result = sequence_matcher(value, RATE_LIST, 0.45)
                 # print(f"scorerate: {result}")

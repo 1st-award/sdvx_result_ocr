@@ -17,7 +17,17 @@ class Box:
 
     @class_nm.setter
     def class_nm(self, class_nm) -> None:
-        self._class_nm = class_nm.replace("_", "")
+        # OCR시 합성어 분리되어 결과 출력되는 현상 방지 -> 단일어로 변경
+        if (class_nm in ["result_perfect", "UC"]):
+            class_nm = "result"
+        elif(class_nm == "score_detail"):
+            class_nm = "detail"
+        elif(class_nm == "score_perfect"):
+            class_nm = "score"
+        elif(class_nm == "score_rate"):
+            class_nm = "rate"
+        self._class_nm = class_nm
+
     
     @property
     def pos(self) -> Tuple[float, float, float, float]:
