@@ -27,7 +27,7 @@ def read_song_information(title: str, db:Session = Depends(get_db)):
          raise HTTPException(status_code=500, detail=str(err))
     
 @router.get("/title/all")
-def read_all_song_title(db: Session=Depends(get_db)):
+def read_all_song_title():
      result = get_song_title()
      print(len(result))
      return {"succsess": True, "data": result}

@@ -96,7 +96,10 @@ def remove_detect_image(image_name: str, image_format: str):
         image_format (str): 이미지 포맷
     """
     os.remove(f'{UPLOAD_DIR_PATH}\\{image_name}.{image_format}')
-    os.remove(f'{DETECT_DIR_PATH}\\{image_name}.{image_format}')
+    if os.path.exists(f'{DETECT_DIR_PATH}\\{image_name}.{image_format}'):
+        os.remove(f'{DETECT_DIR_PATH}\\{image_name}.{image_format}')
+    else:
+        os.remove(f'{DETECT_DIR_PATH}\\image0.jpg')
 
 def create_record(data: RecordItem, db: Session):
     """기록을 저장하는 함수
