@@ -7,7 +7,7 @@ load_dotenv()
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 FONT_DIR_PATH = os.environ.get("FONT_DIR_PATH")
-TITLE_HEIGHT = 20
+TITLE_HEIGHT = 40
 
 def _new_title(title: str, size: Tuple[int, int]) -> Image:
     """잘라낸 사진을 구분짓기위한 title 생성 함수
@@ -21,7 +21,7 @@ def _new_title(title: str, size: Tuple[int, int]) -> Image:
     """
     image = Image.new('RGB', (size[0], TITLE_HEIGHT), BLACK)
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype(FONT_DIR_PATH, 10)
+    font = ImageFont.truetype(FONT_DIR_PATH, 20)
     draw.text((10, 0), title, font=font, fill=WHITE)
     return image
 

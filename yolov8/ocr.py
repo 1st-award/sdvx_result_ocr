@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 from io import BytesIO
 from typing import Dict, List, Optional
 load_dotenv()
-CLASS_JOB: Dict[str, bool] = {"UC": False, "difficulty": False, "result": False, "result_perfect": False, "score": False, "score_detail": False, "score_perfect": False, "score_rate": False, "title": False}
-CLASS_LIST: List[str] = ["UC", "difficulty", "result", "result_perfect", "score", "score_detail", "score_perfect", "score_rate", "title"]
+CLASS_JOB: Dict[str, bool] = {"difficulty": False, "result": False,"score": False, "detail": False, "rate": False, "title": False}
+CLASS_LIST: List[str] = ["difficulty", "result", "score", "detail","rate", "title"]
 DETAIL_LIST: List[str] = ["ERROR", "NEAR", "CRITICAL", "S_CRITICAL"]
 DIFFICULTY_LIST: List[str] = ["NOV", "ADV", "EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]
 RESULT_LIST: List[str] = ["CRASH", "COMPLETE", "PERFECT", "ULTIMATECHAIN"]
@@ -160,7 +160,7 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                 ocr_value += sequence_matcher(value, RESULT_LIST)
             elif current_job == "detail":
                 # ERROR, NEAR, CRITICAL, S-CRITICAL
-                result = sequence_matcher(value, DETAIL_LIST, 0.45)
+                result = sequence_matcher(value, DETAIL_LIST, 0.35)
                 if result is None:
                     ocr_value.append(value)
                     dup_switch = False
@@ -170,12 +170,8 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
                     dup_switch = True
             elif current_job == "score":
                 # 0 ~ 100000
-                result = sequence_matcher(value, RESULT_LIST, 0.45)
                 # print(f"currentjob: {result}")
-                if result is None:
-                    ocr_value += value
-                else:
-                    ocr_value += result
+                ocr_value += value
             elif current_job == "rate":
                 # EFFECTIVE RATE, EXCESSIVE RATE
                 result = sequence_matcher(value, RATE_LIST, 0.45)
@@ -201,5 +197,5 @@ def req_OCR_data(image: BytesIO, image_name: str) -> List[dict]:
     return ocr_result_list
 
                 
-# print(sequence_matcher("CRMCAL", DETAIL_LIST))
+# print(sequence_matcher("ERMFAL", DETAIL_LIST))
 # print(req_OCR())
