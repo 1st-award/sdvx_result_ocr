@@ -1,7 +1,7 @@
 import os
 import uuid
 import crud.default as crud
-from database import get_db
+from database import get_db, get_song_title
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -25,6 +25,12 @@ def read_song_information(title: str, db:Session = Depends(get_db)):
         return {"success": True, "data": result}
     except Exception as err:
          raise HTTPException(status_code=500, detail=str(err))
+    
+@router.get("/title/all")
+def read_all_song_title(db: Session=Depends(get_db)):
+     result = get_song_title()
+     print(len(result))
+     return {"succsess": True, "data": result}
          
 
 @router.get("/{title}/img/{difficulty}")

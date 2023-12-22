@@ -16,7 +16,7 @@ def get_db():
 
 def get_song_title():
     db = SessionLocal()
-    SELECT_QUERY = "SELECT T_SONG.TITLE FROM T_SONG"
+    SELECT_QUERY = "SELECT DISTINCT T_SONG.TITLE FROM T_SONG"
     result = db.execute(text(SELECT_QUERY)).all()
     title_list = []
     for title in result:
